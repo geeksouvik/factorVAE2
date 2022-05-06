@@ -49,21 +49,12 @@ class VAE(nn.Module):
 
         self.reset_parameters()
 
+    ''' Our contribution, reparameterisation trick '''
+
     def reparameterize(self, mean, logvar):
-        """
-        Samples from a normal distribution using the reparameterization trick.
-
-        Parameters
-        ----------
-        mean : torch.Tensor
-            Mean of the normal distribution. Shape (batch_size, latent_dim)
-
-        logvar : torch.Tensor
-            Diagonal log variance of the normal distribution. Shape (batch_size,
-            latent_dim)
-        """
         if self.training:
-            std = torch.exp(0.5 * logvar)
+            x = 0.5 * logvar
+            std = torch.exp(x)
             eps = torch.randn_like(std)
             return mean + std * eps
         else:

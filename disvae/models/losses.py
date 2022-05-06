@@ -134,6 +134,7 @@ class FactorKLoss(BaseLoss):
         data1 = data[0]
         data2 = data[1]
 
+        '''Our contribution '''
         # Factor VAE Loss
         recon_batch, latent_dist, latent_sample1 = model(data1)
         rec_loss = _reconstruction_loss(data1, recon_batch,
@@ -146,11 +147,13 @@ class FactorKLoss(BaseLoss):
         # We want log(p_true/p_false). If not using logisitc regression but softmax
         # then p_true = exp(logit_true) / Z; p_false = exp(logit_false) / Z
         # so log(p_true/p_false) = logit_true - logit_false
-        tc_loss = (d_z[:, 0] - d_z[:, 1]).mean()
+        tc_loss = -(d_z[:, 1] - d_z[:, 0]).mean()
         # with sigmoid (not good results) should be `tc_loss = (2 * d_z.flatten()).mean()`
 
         anneal_reg = (linear_annealing(0, 1, self.n_train_steps, self.steps_anneal)
                       if model.training else 1)
+
+        '''important '''
         vae_loss = rec_loss + kl_loss + anneal_reg * self.gamma * tc_loss
 
         if storer is not None:
